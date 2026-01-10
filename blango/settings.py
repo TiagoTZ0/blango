@@ -37,6 +37,7 @@ class Dev(Configuration):
         'django.contrib.staticfiles',
         'crispy_forms',
         'crispy_bootstrap5',
+        "debug_toolbar",
         'blog',
     ]
 
@@ -45,6 +46,7 @@ class Dev(Configuration):
 
     MIDDLEWARE = [
         'django.middleware.security.SecurityMiddleware',
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         # 'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,6 +56,8 @@ class Dev(Configuration):
     ]
 
     ROOT_URLCONF = 'blango.urls'
+
+    INTERNAL_IPS = ["192.168.10.31"]
 
     TEMPLATES = [
         {
