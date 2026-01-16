@@ -37,7 +37,7 @@ class Dev(Configuration):
         'crispy_bootstrap5',
         'debug_toolbar',
         'blog',
-        'blango_auth'
+        'blango_auth',
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -161,3 +161,5 @@ class Dev(Configuration):
       'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
       'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     ]
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    ACCOUNT_ACTIVATION_DAYS = 7
