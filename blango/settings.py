@@ -34,6 +34,7 @@ class Dev(Configuration):
         'django.contrib.messages',
         'django.contrib.sites',
         'django.contrib.staticfiles',
+        'rest_framework',
         'crispy_forms',
         'crispy_bootstrap5',
         'debug_toolbar',
@@ -43,6 +44,7 @@ class Dev(Configuration):
         'allauth.account',
         'allauth.socialaccount',
         'allauth.socialaccount.providers.google',
+        
     ]
     SITE_ID = 1
     ACCOUNT_USER_MODEL_USERNAME_FIELD = None
