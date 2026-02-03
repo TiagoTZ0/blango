@@ -7,9 +7,6 @@ class Dev(Configuration):
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent
 
-    # Quick-start development settings - unsuitable for production
-    # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
     # SECURITY WARNING: keep the secret key used in production secret!
     SECRET_KEY = "django-insecure-ym=d)ft4%)xiukqr&tgstl6i2091+x_#&o%*%n6g^epgy(bpd6"
     
@@ -18,7 +15,9 @@ class Dev(Configuration):
     AUTH_USER_MODEL = "blango_auth.User"
     ALLOWED_HOSTS = ['*']
 
-    X_FRAME_OPTIONS = 'ALLOW-FROM ' + os.environ.get('CODIO_HOSTNAME', '') + '-8000.codio.io'
+    # Configuraciones de Seguridad para el entorno Codio
+    # SAMEORIGIN es necesario para que la UI de Swagger no sea bloqueada
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
     CSRF_TRUSTED_ORIGINS = ['https://' + os.environ.get('CODIO_HOSTNAME', '') + '-8000.codio.io']
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
@@ -35,6 +34,8 @@ class Dev(Configuration):
         'django.contrib.sites',
         'django.contrib.staticfiles',
         'rest_framework',
+        'rest_framework.authtoken',
+        'drf_yasg',
         'crispy_forms',
         'crispy_bootstrap5',
         'debug_toolbar',
@@ -44,9 +45,8 @@ class Dev(Configuration):
         'allauth.account',
         'allauth.socialaccount',
         'allauth.socialaccount.providers.google',
-        'rest_framework.authtoken',
-        
     ]
+
     SITE_ID = 1
     ACCOUNT_USER_MODEL_USERNAME_FIELD = None
     ACCOUNT_EMAIL_REQUIRED = True
@@ -54,17 +54,24 @@ class Dev(Configuration):
     ACCOUNT_AUTHENTICATION_METHOD = "email"
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
     CRISPY_TEMPLATE_PACK = "bootstrap5"
+    
+    # Configuración de Seguridad para Swagger
+    SWAGGER_SETTINGS = {
+        "SECURITY_DEFINITIONS": {
+            "Token": {"type": "apiKey", "name": "Authorization", "in": "header"},
+            "Basic": {"type": "basic"},
+        }
+    }
 
     REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
+        "DEFAULT_AUTHENTICATION_CLASSES": [
+            "rest_framework.authentication.BasicAuthentication",
+            "rest_framework.authentication.SessionAuthentication",
+            "rest_framework.authentication.TokenAuthentication",
         ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly"
-    ],
-
+        "DEFAULT_PERMISSION_CLASSES": [
+            "rest_framework.permissions.IsAuthenticatedOrReadOnly"
+        ],
     }
 
     MIDDLEWARE = [
@@ -72,10 +79,10 @@ class Dev(Configuration):
         'debug_toolbar.middleware.DebugToolbarMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
-        # 'django.middleware.csrf.CsrfViewMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
     ]
 
     ROOT_URLCONF = 'blango.urls'
@@ -86,7 +93,7 @@ class Dev(Configuration):
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [BASE_DIR / 'templates'],
-            'APP_DIRS': True,
+            'APP_DIRS': True, # Esto es lo que permite cargar drf-yasg/swagger-ui.html
             'OPTIONS': {
                 'context_processors': [
                     'django.template.context_processors.debug',
@@ -101,43 +108,28 @@ class Dev(Configuration):
     WSGI_APPLICATION = 'blango.wsgi.application'
 
     # Database
-    # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
     DATABASES = values.DatabaseURLValue(f"sqlite:///{BASE_DIR}/db.sqlite3")
 
     # Password validation
-    # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
     AUTH_PASSWORD_VALIDATORS = [
-        {
-            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-        },
-        {
-            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        },
-        {
-            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-        },
-        {
-            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-        },
+        {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+        {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+        {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+        {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
     ]
 
     # Internationalization
-    # https://docs.djangoproject.com/en/3.2/topics/i18n/
     LANGUAGE_CODE = 'en-us'
-
-
     TIME_ZONE = values.Value("UTC")
-
     USE_I18N = True
     USE_L10N = True
     USE_TZ = True
 
     # Static files (CSS, JavaScript, Images)
-    # https://docs.djangoproject.com/en/3.2/howto/static-files/
     STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR / "static" # Directorio donde se juntarán los archivos de Swagger
 
     # Default primary key field type
-    # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
     DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
     
     LOGGING = {
