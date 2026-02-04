@@ -5,7 +5,8 @@ from rest_framework.authtoken import views
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
-from blog.api.views import PostList, PostDetail, UserDetail
+from blog.api.views import PostList, PostDetail, UserDetail, TagViewSet, PostViewSet
+from rest_framework.routers import DefaultRouter
 
 # Configuración del generador de esquema
 schema_view = get_schema_view(
@@ -21,8 +22,6 @@ schema_view = get_schema_view(
 
 # 1. Rutas que SÍ llevan sufijos (.json)
 api_resource_urls = [
-    path("posts/", PostList.as_view(), name="api_post_list"),
-    path("posts/<int:pk>", PostDetail.as_view(), name="api_post_detail"),
     path("users/<str:email>", UserDetail.as_view(), name="api_user_detail"),
 ]
 
@@ -43,4 +42,12 @@ urlpatterns += [
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
+]
+
+router = DefaultRouter()
+router.register("tags", TagViewSet)
+router.register("posts", PostViewSet)
+
+urlpatterns += [
+    path("", include(router.urls)),
 ]
